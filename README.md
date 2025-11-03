@@ -14,7 +14,7 @@ This is an example node.js application that utilizes local embeddings and Ollama
 
 - [Transformers.js Documentation](https://huggingface.co/docs/transformers.js)
 - [Ollama Documentation](https://ollama.ai/docs)
-- [RAG Concepts](https://www.anthropic.com/index/contextual-retrieval)
+- [Introducing Contextual Retrieval](https://www.anthropic.com/index/contextual-retrieval)
 
 ## Instructions
 
