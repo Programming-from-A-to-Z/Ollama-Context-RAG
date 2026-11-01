@@ -34,6 +34,9 @@ function setup() {
 
   // Function when the 'answer' button is pressed
   async function answer() {
+    // The language model takes a few seconds, so say so
+    resultsP.html('Thinking...');
+
     // Send a POST request to the '/api/query' endpoint
     const response = await fetch('/api/query', {
       method: 'POST',

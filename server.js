@@ -1,28 +1,30 @@
-import { pipeline } from '@huggingface/transformers';
 import express from 'express';
-import bodyParser from 'body-parser';
+import ollama from 'ollama';
 import * as fs from 'fs';
 
+// Both models run in Ollama
+const embeddingModel = 'embeddinggemma-2:270m'; // turns text into embeddings
+const chatModel = 'gemma4'; // writes the answers
+// For a smaller download (4.3 GB instead of 6.6 to 9.5 GB), use 'gemma4:e2b-it-qat'
+
 // Read and parse the embeddings from the file
-const { embeddings } = JSON.parse(fs.readFileSync('data/embeddings.json', 'utf-8'));
-console.log('Embeddings loaded.');
+const { model, embeddings } = JSON.parse(fs.readFileSync('data/embeddings.json', 'utf-8'));
+console.log(`Loaded ${embeddings.length} embeddings made with ${model}`);
 
 // Initialize Express application
 const app = express();
-app.use(bodyParser.json()); // Middleware for parsing JSON bodies
+app.use(express.json()); // Parse JSON bodies
 app.use(express.static('public')); // Serve static files from 'public' directory
 
-// Initialize the embedding model
-let extractor;
-console.log('Loading embedding model...');
-extractor = await pipeline('feature-extraction', 'mixedbread-ai/mxbai-embed-xsmall-v1');
-console.log('Embedding model loaded successfully!');
-
-// Function to get embedding for a given text
+// Function to get embedding for a question
 async function getEmbedding(text) {
-  console.log(`Generating embedding for test query: "${text}"`);
-  const output = await extractor(text, { pooling: 'mean', normalize: true });
-  return Array.from(output.data);
+  console.log(`Generating embedding for query: "${text}"`);
+  // Questions get a different prefix than the documents in embeddings.json
+  const response = await ollama.embed({
+    model: embeddingModel,
+    input: 'task: question answering | query: ' + text,
+  });
+  return response.embeddings[0];
 }
 
 // Endpoint to find similar texts based on embeddings
@@ -52,24 +54,18 @@ async function queryLLM(prompt, knowledge) {
   const formattedPrompt = createPrompt(prompt, knowledge);
   console.log(formattedPrompt);
 
-  const ollamaResponse = await fetch('http://localhost:11434/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'gemma3',
-      messages: [
-        {
-          role: 'user',
-          content: formattedPrompt,
-        },
-      ],
-      stream: false,
-    }),
+  const reply = await ollama.chat({
+    model: chatModel,
+    messages: [
+      {
+        role: 'user',
+        content: formattedPrompt,
+      },
+    ],
   });
 
-  const data = await ollamaResponse.json();
-  console.log(data);
-  return data.message.content;
+  console.log(reply.message.content);
+  return reply.message.content;
 }
 
 // Function to create a prompt with given context and query
