@@ -2,6 +2,11 @@ import express from 'express';
 import ollama from 'ollama';
 import * as fs from 'fs';
 
+// Retrieval Augmented Generation (RAG) with Ollama
+// 1. save-embeddings.js made an embedding for every line of the transcripts (data/embeddings.json)
+// 2. Retrieval (/api/similar): make an embedding for the question and find the most similar lines
+// 3. Augmented generation (/api/query): paste those lines into the prompt for a chat model
+
 // Both models run in Ollama
 const embeddingModel = 'embeddinggemma-2:270m'; // turns text into embeddings
 const chatModel = 'gemma4'; // writes the answers
@@ -13,8 +18,8 @@ console.log(`Loaded ${embeddings.length} embeddings made with ${model}`);
 
 // Initialize Express application
 const app = express();
-app.use(express.json()); // Parse JSON bodies
-app.use(express.static('public')); // Serve static files from 'public' directory
+app.use(express.json());
+app.use(express.static('public'));
 
 // Function to get embedding for a question
 async function getEmbedding(text) {
@@ -100,10 +105,10 @@ async function findSimilar(prompt) {
   return similarities;
 }
 
-// Start the server on the specified port
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Start the server
+const port = 3001;
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
 
 // Cosine Similarity Functions

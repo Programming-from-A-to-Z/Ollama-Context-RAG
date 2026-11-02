@@ -14,16 +14,18 @@ This is an example node.js application that answers questions about a text with 
 ## Models
 
 - **Embeddings:** [EmbeddingGemma 2](https://ollama.com/library/embeddinggemma-2) (Google DeepMind, October 2026). The `270m` version is text only (about 300–380 MB), which is all this example needs.
-- **Answers:** [Gemma 4](https://ollama.com/library/gemma4). Any chat model in Ollama works: change `chatModel` at the top of `server.js`.
+- **Answers:** [Gemma 4](https://ollama.com/library/gemma4).
 
 EmbeddingGemma 2 was trained with a short prefix in front of each text, so the code adds one:
 
 - Each chunk of the corpus: `title: none | text: ...`
 - Each question: `task: question answering | query: ...`
 
-These prefixes belong to EmbeddingGemma 2. Other embedding models use different prefixes or none, so check the model card if you switch.
+The model was trained with document titles and text, but in this case we have just text so we put `title: none`.
 
-The same recipe also runs entirely in the browser, with no server and no Ollama: Ask the Syllabus uses Transformers.js, a different text (the class syllabus), a simpler embedding model with no prefixes (all-MiniLM-L6-v2), and a smaller language model. It's linked from the [Embeddings notes](https://github.com/Programming-from-A-to-Z/A2Z-F26/tree/main/07-embeddings).
+These prefixes are specific to EmbeddingGemma 2. Other embedding models may use different prefixes or no prefixes at all, this will be described in the model card.
+
+You can also create a version of this in the browser, with no server required. The [Ask the Syllabus](https://editor.p5js.org/a2zitp/sketches/nv8ipwrM1) example uses [Transformers.js](https://huggingface.co/docs/transformers.js), a different text ([the class syllabus](https://github.com/Programming-from-A-to-Z/A2Z-F26)), a simpler embedding model that does not use prefixes ([all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)), and a smaller language model ([SmolLM2-1.7B-Instruct](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct)). It's linked from the [Embeddings notes](https://github.com/Programming-from-A-to-Z/A2Z-F26/tree/main/07-embeddings).
 
 ## References
 
@@ -40,7 +42,7 @@ ollama pull embeddinggemma-2:270m
 ollama pull gemma4
 ```
 
-`gemma4` is the same model as last week's [Ollama-Examples](https://github.com/Programming-from-A-to-Z/Ollama-Examples), so you may already have it. If not, it's a big download (6.6–9.5 GB, depending on your computer). For a smaller one, pull `gemma4:e2b-it-qat` instead (4.3 GB) and change `chatModel` at the top of `server.js` to match.
+`gemma4` is a big download. For a smaller one, you can pull `gemma4:e2b-it-qat` instead and change `chatModel` at the top of `server.js` to match.
 
 2. **Install Dependencies**
 
